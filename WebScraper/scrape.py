@@ -9,33 +9,30 @@ def make_soup(url):
     html = urlopen(url).read()
     return BeautifulSoup(html, "lxml")
 
-def get_category_links(section_url):
+def get_article_links(section_url):
     soup = make_soup(section_url)
     blog = soup.find("div", "blog")
-    category_links = [BASE_URL + items.a["href"] for items in blog.findAll("div","item")]
-    return category_links
+    article_links = [BASE_URL + items.a["href"] for items in blog.findAll("div","item")]
+    return article_links
 
-def get_category_winner(category_url):
-    soup = make_soup(category_url)
+def get_articles(article_url):
+    soup = make_soup(article_url)
     title = [h2.text for h2 in soup.findAll("div", attrs={"class","page-header"})]
     content = [p.text for p in soup.findAll(itemprop="articleBody")]
     return {"title": title,
-            "news_url": category_url,
+            "news_url": article_url,
             "content": content}
 
 if __name__ == '__main__':
-    food_n_drink = ("http://plasticscolor.com/about/news.html")
+    news_articles = ("http://plasticscolor.com/about/news.html")
 
-    categories = get_category_links(food_n_drink)
+    articles = get_article_links(news_articles)
 
-    data = [] # a list to store our dictionaries
-    for category in categories:
-        winner = get_category_winner(category)
-        data.append(winner)
+    data = [] # a list to store our articles
+    for article in articles:
+        info = get_articles(article)
+        data.append(info)
         sleep(1) # be nice
 
     with  open('news.json','w') as text_file:
         json.dump(data,text_file)
-
-    #print data
-
